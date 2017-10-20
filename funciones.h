@@ -4,12 +4,15 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdbool.h>
+#include <pthread.h>
 
 typedef struct data
 {
+    int id;    
     char** palabras;
     int cantidad_palabras;
-    int id;    
+    int numero_filas;
+    int numero_columnas;
 } data;
 
 char ** palabras(char* archivo, int num_lineas);
@@ -22,5 +25,10 @@ void imprimirMatriz(int i, int j, char ** matriz);
 void imprimirPalabras(char** palabras, int num_lineas);
 char ** rellenarBasura(char** matriz, int n, int m);
 void escribirSalida(char* salida, char** matriz, int num_lineas, int num_columnas);
-data* asignarData(char** palabras, int* asignacion, int num_lineas, int num_hebras);
+data* asignarData(char** palabras, int* asignacion, int num_lineas, int num_columnas, int num_filas, int num_hebras);
 void imprimirData(data* datos, int num_hebras);
+pthread_mutex_t* crearMutex(int num_lineas);
+int randomMax(int numero);
+int largoPalabra(char* palabra);
+void *ubicar(void *params);
+

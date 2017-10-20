@@ -6,8 +6,10 @@
 #include <stdbool.h>
 #include <sys/wait.h>
 #include "funciones.h"
+#include <pthread.h>
 
 char **matriz;
+pthread_mutex_t* mutex;
 
 int main(int argc, char **argv)
 {
@@ -17,7 +19,7 @@ int main(int argc, char **argv)
   int numero_filas, numero_columnas, numero_hebras = 0;
   int c;
   bool mostrar = false;
-
+  pthread_t* hilos;
 
   opterr = 0;
 
@@ -64,7 +66,6 @@ int main(int argc, char **argv)
   }
   matriz = crearMatriz(numero_filas,numero_columnas);
   matriz = inicializarMatriz(numero_filas, numero_columnas, matriz);
-  matriz = rellenarBasura(matriz, numero_filas, numero_columnas);
   imprimirMatriz(numero_filas, numero_columnas, matriz);
   int cantidad_lineas = contar(nombre_entrada);
   char **total_palabras = palabras(nombre_entrada, cantidad_lineas);
@@ -75,8 +76,25 @@ int main(int argc, char **argv)
 
   //Se asigna la cantidad de lineas acorde a los procesos.
   int *asignacion = asignar(cantidad_lineas, numero_hebras);
-  data *arregloDatos = asignarData(total_palabras, asignacion, cantidad_lineas, numero_hebras);
+  data *arregloDatos = asignarData(total_palabras, asignacion, cantidad_lineas, numero_columnas, numero_filas, numero_hebras);
   imprimirData(arregloDatos, numero_hebras);
+  mutex = crearMutex(numero_filas);
+
+  printf("Tamaño palabra: %d\n", largoPalabra(arregloDatos[0].palabras[2]));
+
+  hilos = (pthread_t *)malloc(sizeof(pthread_t)*numero_filas);
+
+  for (int i = 0; i < numero_hebras; ++i)
+  {
+    pthread_create(&hilos[i], NULL, ubicar, (void *)&arregloDatos[i]);
+  }
+
+  for (int i = 0; i < numero_hebras; ++i)
+  {
+    pthread_join(hilos[i], NULL);
+  }
+
+  matriz = rellenarBasura(matriz, numero_filas, numero_columnas);
   //escribirSalida(nombre_salida, matriz, numero_filas, numero_columnas);
 
   liberarMatriz(numero_filas, numero_columnas, matriz);

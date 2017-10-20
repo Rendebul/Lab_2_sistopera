@@ -4,7 +4,7 @@ all: dev
 # Compilación principal del ejecutable
 dev:
 	@echo 'Compilando'
-	gcc coordinador.c funciones.c -o coordinador -lm
+	gcc coordinador.c funciones.c -o coordinador -lm -lpthread
 	@echo "Ejecute el programa haciendo: ./coordinador -i archivo -n Ni -m Ci -s salida -d"
 	@echo "Donde  archivo: nombre del archivo junto a su extension. Ej: ejemplo1.txt"
 	@echo "       Ni: cantidad de filas de la matriz."

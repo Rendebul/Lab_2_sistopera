@@ -6,6 +6,7 @@
 #include <math.h>
 #include <time.h>
 #include "funciones.h"
+#include <pthread.h>
 
 char ** crearMatriz(int i, int j){
     char ** matriz = (char**)malloc(sizeof(char*)*i);
@@ -101,10 +102,11 @@ char** palabras(char* archivo,int num_lineas) {
         abort();
     }
     char **palabras = (char**) malloc(sizeof(char*)*num_lineas);
-    char *linea = malloc(sizeof(char)*(255));
+    char *linea = malloc(sizeof(char)*(20));
     int i = 0;
-    while(fgets(linea, 255, fa) != NULL) {
-        palabras[i] = (char *)malloc(sizeof(char)*255);
+    while(fgets(linea, 20, fa) != NULL) {
+        palabras[i] = (char *)malloc(sizeof(char)*20);
+        memset(palabras[i],' ',sizeof(palabras));
         strtok(linea, "\n");
         strcpy(palabras[i],linea);
         i++;
@@ -155,7 +157,7 @@ void escribirSalida(char* salida, char** matriz, int num_lineas, int num_columna
     fclose(fa);
 };
 
-data* asignarData(char** palabras, int* asignacion, int num_lineas, int num_hebras) {
+data* asignarData(char** palabras, int* asignacion, int num_lineas,int num_columnas,int num_filas ,int num_hebras) {
     data* arregloDatos = (data*)malloc(sizeof(data)*num_hebras);
     int palabra_ant = 0;
     for (int i = 0; i < num_hebras; ++i)
@@ -170,7 +172,7 @@ data* asignarData(char** palabras, int* asignacion, int num_lineas, int num_hebr
             cant_palabras += 1;
             palabra_ant++;
         }
-        data dato = {palabras_asignadas, cant_palabras,i};
+        data dato = {i,palabras_asignadas, cant_palabras, num_filas, num_columnas};
         arregloDatos[i] = dato;
     }
     return arregloDatos;
@@ -189,4 +191,37 @@ void imprimirData(data* datos, int num_hebras){
     }
 }
 
+pthread_mutex_t* crearMutex(int num_lineas){
+    pthread_mutex_t* matriz = (pthread_mutex_t*)malloc(sizeof(pthread_mutex_t*)*num_lineas);
+
+    for (int i = 0; i < num_lineas; ++i)
+    {
+        pthread_mutex_init(&matriz[i], NULL);
+    }
+    return matriz;
+}
+
+int randomMax(int max) {
+    srand(time(NULL));
+    return rand()%max;
+}
+
+int largoPalabra(char* palabra) {
+    int iterator = 0;
+    while(palabra[iterator] != 0) {
+        iterator++;
+    }
+    return iterator-1;
+}
+
+void *ubicar(void *params) {
+    printf("Hola!\n");
+    data* datos = (data *)params;
+    int num_filas = (int)datos->numero_filas;
+    int num_columnas = (int) datos->numero_columnas;
+    char ** palabras = (char**)datos->palabras;
+    int num_palabras = (int) datos->cantidad_palabras;
+}
+
+int validarEscritura(){}
 
